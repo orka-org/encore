@@ -73,12 +73,12 @@ func NewTokensUsecase() (TokensUsecase, error) {
 
 	access_exp, err := strconv.ParseInt(aStr, 10, 64)
 	if err != nil {
-		uc.log.Warn("Invalid JWT Access Expiration, using default", "err", err.Error())
+		uc.log.Warn("Invalid JWT Access Expiration, using default", "err", err.Error(), "given", aStr, "default", 3600)
 		access_exp = 3600
 	}
 	refresh_exp, err := strconv.ParseInt(rStr, 10, 64)
 	if err != nil {
-		uc.log.Warn("Invalid JWT Refresh Expiration, using default", "err", err.Error())
+		uc.log.Warn("Invalid JWT Refresh Expiration, using default", "err", err.Error(), "given", rStr, "default", 24*3600)
 		refresh_exp = 24 * 3600
 	}
 
