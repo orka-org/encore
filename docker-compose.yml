@@ -1,0 +1,9 @@
+services:
+  pg:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: orka
+      POSTGRES_PASSWORD: orka
+      POSTGRES_DB: orka
+    ports:
+      - "5432:5432"
