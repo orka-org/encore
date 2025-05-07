@@ -3,7 +3,7 @@ package accounts
 import (
 	"context"
 
-	"encore.app/accounts/lib"
+	"encore.app/pkg/tokens"
 	"encore.dev/beta/errs"
 	"encore.dev/rlog"
 	"golang.org/x/crypto/bcrypt"
@@ -12,12 +12,12 @@ import (
 type AuthLogic struct {
 	log    rlog.Ctx
 	repo   UsersRepo
-	tokens lib.TokensUsecase
+	tokens tokens.TokensUsecase
 }
 
 func NewAuthLogic(repo UsersRepo) *AuthLogic {
 	logger := rlog.With("scope", "authLogic")
-	tokens, err := lib.NewTokensUsecase()
+	tokens, err := tokens.NewTokensUsecase()
 	if err != nil {
 		logger.Error("Could not create tokens service", "err", err.Error())
 		return nil
@@ -51,11 +51,11 @@ func (l *AuthLogic) Register(ctx context.Context, params *RegisterParams) (*Regi
 	}
 	l.log.Info("User created", "user", u)
 
-	access, err := l.buildToken(ctx, lib.AccessToken, u)
+	access, err := l.buildToken(ctx, tokens.AccessToken, u)
 	if err != nil {
 		return nil, err
 	}
-	refresh, err := l.buildToken(ctx, lib.RefreshToken, u)
+	refresh, err := l.buildToken(ctx, tokens.RefreshToken, u)
 	if err != nil {
 		return nil, err
 	}
@@ -97,11 +97,11 @@ func (l *AuthLogic) Login(ctx context.Context, params *LoginParams) (*LoginRespo
 		return nil, err
 	}
 
-	access, err := l.buildToken(ctx, lib.AccessToken, u)
+	access, err := l.buildToken(ctx, tokens.AccessToken, u)
 	if err != nil {
 		return nil, err
 	}
-	refresh, err := l.buildToken(ctx, lib.RefreshToken, u)
+	refresh, err := l.buildToken(ctx, tokens.RefreshToken, u)
 	if err != nil {
 		return nil, err
 	}
@@ -132,7 +132,7 @@ func (l *AuthLogic) Refresh(ctx context.Context, params *RefreshParams) (*Refres
 		l.log.Error("Could not get user", "err", err.Error())
 		return nil, err
 	}
-	access, err := l.buildToken(ctx, lib.AccessToken, u)
+	access, err := l.buildToken(ctx, tokens.AccessToken, u)
 	if err != nil {
 		return nil, err
 	}
@@ -200,7 +200,7 @@ func (l *AuthLogic) Validate(ctx context.Context, params *ValidateParams) (*Vali
 	}, nil
 }
 
-func (l *AuthLogic) buildToken(ctx context.Context, tokenType lib.TokenType, user *User) (string, error) {
+func (l *AuthLogic) buildToken(ctx context.Context, tokenType tokens.TokenType, user *User) (string, error) {
 	extraClaims := map[string]interface{}{
 		"username": user.Username,
 		"email":    user.Email,
